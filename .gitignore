@@ -9,3 +9,7 @@ Thumbs.db
 # 臨時檔案
 *.log
 *.tmp
+
+# Node.js
+node_modules/
+package-lock.json

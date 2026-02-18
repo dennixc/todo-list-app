@@ -1,3 +1,32 @@
+// ==========================================
+// PWA - Service Worker 註冊
+// ==========================================
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js')
+            .then((registration) => {
+                console.log('✅ Service Worker 註冊成功:', registration.scope);
+
+                // 檢查更新
+                registration.addEventListener('updatefound', () => {
+                    const newWorker = registration.installing;
+                    console.log('🔄 Service Worker 更新中...');
+
+                    newWorker.addEventListener('statechange', () => {
+                        if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                            // 新的 Service Worker 已安裝，但舊的仍在控制頁面
+                            console.log('📢 新版本可用！請重新整理頁面以更新。');
+                            // 可以在這裡顯示通知提示使用者重新整理
+                        }
+                    });
+                });
+            })
+            .catch((error) => {
+                console.error('❌ Service Worker 註冊失敗:', error);
+            });
+    });
+}
+
 // 全域變數
 let todos = [];
 let draggedElement = null;
