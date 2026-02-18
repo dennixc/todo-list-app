@@ -2,6 +2,9 @@
 let todos = [];
 let draggedElement = null;
 let draggedId = null;
+let touchStartY = 0;
+let touchCurrentY = 0;
+let isDraggingTouch = false;
 
 // DOM 元素
 const todoInput = document.getElementById('todoInput');
@@ -186,13 +189,18 @@ function renderTodos(searchQuery = '') {
         li.setAttribute('data-id', todo.id);
         li.setAttribute('draggable', 'true');
 
-        // 拖曳事件監聽器
+        // 拖曳事件監聽器（桌面版）
         li.addEventListener('dragstart', handleDragStart);
         li.addEventListener('dragover', handleDragOver);
         li.addEventListener('drop', handleDrop);
         li.addEventListener('dragend', handleDragEnd);
         li.addEventListener('dragenter', handleDragEnter);
         li.addEventListener('dragleave', handleDragLeave);
+
+        // 觸控事件監聽器（手機版）
+        li.addEventListener('touchstart', handleTouchStart, { passive: false });
+        li.addEventListener('touchmove', handleTouchMove, { passive: false });
+        li.addEventListener('touchend', handleTouchEnd);
 
         // Checkbox
         const checkbox = document.createElement('input');
@@ -329,4 +337,93 @@ function handleDragEnd(e) {
 
     draggedElement = null;
     draggedId = null;
+}
+
+// 觸控開始（手機版拖曳）
+function handleTouchStart(e) {
+    // 如果點擊的是按鈕或輸入框，不要觸發拖曳
+    if (e.target.tagName === 'BUTTON' || e.target.tagName === 'INPUT') {
+        return;
+    }
+
+    draggedElement = this;
+    draggedId = parseInt(this.getAttribute('data-id'));
+    touchStartY = e.touches[0].clientY;
+    isDraggingTouch = false;
+
+    // 延遲 150ms 後才開始拖曳，避免與滾動衝突
+    setTimeout(() => {
+        if (draggedElement) {
+            isDraggingTouch = true;
+            draggedElement.classList.add('dragging');
+        }
+    }, 150);
+}
+
+// 觸控移動（手機版拖曳）
+function handleTouchMove(e) {
+    if (!isDraggingTouch || !draggedElement) {
+        return;
+    }
+
+    // 防止頁面滾動
+    e.preventDefault();
+
+    touchCurrentY = e.touches[0].clientY;
+    const touch = e.touches[0];
+
+    // 移除所有 drag-over class
+    document.querySelectorAll('.todo-item').forEach(item => {
+        item.classList.remove('drag-over');
+    });
+
+    // 找到觸控點下方的元素
+    const elementBelow = document.elementFromPoint(touch.clientX, touch.clientY);
+    const todoItemBelow = elementBelow?.closest('.todo-item');
+
+    if (todoItemBelow && todoItemBelow !== draggedElement) {
+        todoItemBelow.classList.add('drag-over');
+    }
+}
+
+// 觸控結束（手機版拖曳）
+function handleTouchEnd(e) {
+    if (!isDraggingTouch || !draggedElement) {
+        draggedElement = null;
+        draggedId = null;
+        isDraggingTouch = false;
+        return;
+    }
+
+    // 找到最後觸控的位置
+    const touch = e.changedTouches[0];
+    const elementBelow = document.elementFromPoint(touch.clientX, touch.clientY);
+    const targetItem = elementBelow?.closest('.todo-item');
+
+    if (targetItem && targetItem !== draggedElement) {
+        // 獲取目標任務的 ID
+        const targetId = parseInt(targetItem.getAttribute('data-id'));
+
+        // 找到兩個任務在陣列中的索引
+        const draggedIndex = todos.findIndex(todo => todo.id === draggedId);
+        const targetIndex = todos.findIndex(todo => todo.id === targetId);
+
+        // 重新排序
+        const [draggedItem] = todos.splice(draggedIndex, 1);
+        todos.splice(targetIndex, 0, draggedItem);
+
+        // 儲存並重新渲染
+        saveTodos();
+        renderTodos(searchInput.value);
+    }
+
+    // 清理
+    document.querySelectorAll('.todo-item').forEach(item => {
+        item.classList.remove('dragging');
+        item.classList.remove('drag-over');
+    });
+
+    draggedElement = null;
+    draggedId = null;
+    isDraggingTouch = false;
 }

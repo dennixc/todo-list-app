@@ -280,6 +280,12 @@ h1 {
 .todo-item {
     cursor: move;
     cursor: grab;
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    touch-action: pan-y;
+    -webkit-touch-callout: none;
 }
 
 .todo-item:active {
@@ -287,13 +293,34 @@ h1 {
 }
 
 .todo-item.dragging {
-    opacity: 0.5;
+    opacity: 0.6;
     transform: scale(0.98);
     box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+    z-index: 1000;
 }
 
 .todo-item.drag-over {
     border: 2px dashed #667eea;
     background: var(--item-bg-hover);
     transform: scale(1.02);
+}
+
+/* 手機版優化 */
+@media (max-width: 600px) {
+    .todo-item {
+        padding: 15px;
+        margin-bottom: 12px;
+        touch-action: none;
+    }
+
+    .todo-item.dragging {
+        opacity: 0.7;
+        transform: scale(1.05);
+        box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+    }
+
+    .todo-item.drag-over {
+        border: 3px dashed #667eea;
+        transform: scale(1.05);
+    }
 }
