@@ -30,7 +30,13 @@
             <span id="themeIcon">🌙</span>
         </button>
         <h1>✅ 待辦事項清單</h1>
-        <p class="subtitle">已成功部署到 Vercel 🚀</p>
+        <p class="subtitle">已成功部署到 Vercel 🚀 + Firebase 雲端同步 🔥</p>
+
+        <!-- 載入狀態指示器 -->
+        <div id="loadingIndicator" class="loading-indicator" style="display: none;">
+            <div class="spinner"></div>
+            <span>載入中...</span>
+        </div>
 
         <div class="search-section">
             <input
@@ -56,6 +62,57 @@
         </ul>
     </div>
 
-    <script src="script.js"></script>
+    <!-- Firebase SDK (使用 CDN，版本 10.8.0) -->
+    <script type="module">
+        // 匯入 Firebase
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js';
+        import {
+            getFirestore,
+            collection,
+            addDoc,
+            getDocs,
+            doc,
+            updateDoc,
+            deleteDoc,
+            onSnapshot,
+            query,
+            orderBy
+        } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js';
+
+        // Firebase 配置
+        const firebaseConfig = {
+            apiKey: "AIzaSyAh4ECWbFAYEeBFkHRITTnUAH69Gaxxq4A",
+            authDomain: "todo-list-app-3b98d.firebaseapp.com",
+            projectId: "todo-list-app-3b98d",
+            storageBucket: "todo-list-app-3b98d.firebasestorage.app",
+            messagingSenderId: "41651141590",
+            appId: "1:41651141590:web:7bcc38ad95d43e7a918277"
+        };
+
+        // 初始化 Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        console.log('🔥 Firebase 初始化成功');
+
+        // 將 Firebase 函數暴露到全域
+        window.firebaseDB = {
+            db,
+            collection,
+            addDoc,
+            getDocs,
+            doc,
+            updateDoc,
+            deleteDoc,
+            onSnapshot,
+            query,
+            orderBy
+        };
+
+        // Firebase 初始化完成後，載入主應用程式
+        const script = document.createElement('script');
+        script.src = 'script-cdn.js';
+        document.body.appendChild(script);
+    </script>
 </body>
 </html>

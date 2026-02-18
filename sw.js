@@ -1,9 +1,10 @@
 // Service Worker 版本和快取名稱
-const CACHE_NAME = 'todo-v1';
+const CACHE_NAME = 'todo-v2-firebase';
 const ASSETS = [
   '/',
   '/index.html',
   '/script.js',
+  '/firebase-config.js',
   '/style.css',
   '/manifest.json'
 ];
