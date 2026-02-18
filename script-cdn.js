@@ -292,7 +292,7 @@ function renderTodos(filter = '') {
         const dragHandle = li.querySelector('.drag-handle');
         dragHandle.draggable = true;
 
-        // 拖曳手柄的事件
+        // 拖曳手柄的事件（桌面）
         dragHandle.addEventListener('dragstart', handleDragStart);
 
         // 項目的拖曳目標事件
@@ -300,10 +300,10 @@ function renderTodos(filter = '') {
         li.addEventListener('drop', handleDrop);
         li.addEventListener('dragend', handleDragEnd);
 
-        // 觸控事件（手機）
-        li.addEventListener('touchstart', handleTouchStart, { passive: false });
-        li.addEventListener('touchmove', handleTouchMove, { passive: false });
-        li.addEventListener('touchend', handleTouchEnd);
+        // 觸控事件（手機）- 只綁定在拖曳手柄上
+        dragHandle.addEventListener('touchstart', handleTouchStart, { passive: false });
+        dragHandle.addEventListener('touchmove', handleTouchMove, { passive: false });
+        dragHandle.addEventListener('touchend', handleTouchEnd);
 
         todoList.appendChild(li);
     });
@@ -372,12 +372,7 @@ function handleDragEnd(e) {
 }
 
 function handleTouchStart(e) {
-    // 只有點擊拖曳手柄時才啟用拖曳
-    if (!e.target.classList.contains('drag-handle')) {
-        draggedElement = null;
-        return;
-    }
-
+    // 現在事件已經只綁定在拖曳手柄上，不需要再檢查
     const touch = e.touches[0];
     touchStartY = touch.clientY;
     draggedElement = e.target.closest('.todo-item');
