@@ -181,11 +181,18 @@ async function addTodo() {
         addBtn.disabled = true;
         addBtn.textContent = '新增中...';
 
+        // 計算新任務的 order：未完成任務的最大 order + 1
+        const incompleteTodos = todos.filter(t => !t.completed);
+        const maxOrder = incompleteTodos.length > 0
+            ? Math.max(...incompleteTodos.map(t => t.order ?? 0))
+            : -1;
+
         await addDoc(collection(db, 'todos'), {
             text: text,
             completed: false,
             createdAt: new Date(),
-            order: todos.length
+            order: maxOrder + 1,
+            completedAt: null
         });
 
         console.log('✅ 任務已新增');
@@ -206,9 +213,23 @@ async function toggleTodo(id) {
         if (!todo) return;
 
         const todoRef = doc(db, 'todos', id);
-        await updateDoc(todoRef, {
-            completed: !todo.completed
-        });
+        const newCompleted = !todo.completed;
+
+        let updateData = {
+            completed: newCompleted,
+            completedAt: newCompleted ? new Date() : null
+        };
+
+        // 從完成變為未完成時，移到未完成任務的末尾
+        if (!newCompleted) {
+            const incompleteTodos = todos.filter(t => !t.completed);
+            const maxOrder = incompleteTodos.length > 0
+                ? Math.max(...incompleteTodos.map(t => t.order ?? 0))
+                : -1;
+            updateData.order = maxOrder + 1;
+        }
+
+        await updateDoc(todoRef, updateData);
 
         console.log('✅ 狀態已更新');
 
@@ -264,12 +285,15 @@ function renderTodos(filter = '') {
         todo.text.toLowerCase().includes(filter.toLowerCase())
     );
 
-    if (filteredTodos.length === 0) {
+    // 新增：排序（未完成在上，已完成在下）
+    const sortedTodos = sortTodosByCompletionStatus(filteredTodos);
+
+    if (sortedTodos.length === 0) {
         todoList.innerHTML = '<li class="todo-item" style="text-align: center; color: var(--text-secondary);">目前沒有待辦事項</li>';
         return;
     }
 
-    filteredTodos.forEach(todo => {
+    sortedTodos.forEach(todo => {
         const li = document.createElement('li');
         li.className = `todo-item ${todo.completed ? 'completed' : ''}`;
         li.dataset.id = todo.id;
@@ -321,6 +345,49 @@ function handleSearch(e) {
 }
 
 // ==========================================
+// 排序函數：未完成在上，已完成在下
+// ==========================================
+function sortTodosByCompletionStatus(todoList) {
+    return todoList.sort((a, b) => {
+        // 第一層：按完成狀態排序
+        if (a.completed !== b.completed) {
+            return a.completed ? 1 : -1;
+        }
+
+        // 第二層：同一狀態內的排序
+        if (!a.completed) {
+            // 未完成：按 order 排序
+            const orderA = a.order ?? 0;
+            const orderB = b.order ?? 0;
+            return orderA - orderB;
+        } else {
+            // 已完成：按完成時間倒序
+            const timeA = a.completedAt?.toDate?.() || a.completedAt || new Date(0);
+            const timeB = b.completedAt?.toDate?.() || b.completedAt || new Date(0);
+            return timeB - timeA;
+        }
+    });
+}
+
+// ==========================================
+// 更新任務順序到 Firebase
+// ==========================================
+async function updateTodoOrder() {
+    try {
+        const updatePromises = todos.map((todo, index) => {
+            const todoRef = doc(db, 'todos', todo.id);
+            return updateDoc(todoRef, { order: index });
+        });
+
+        await Promise.all(updatePromises);
+        console.log('✅ 順序已同步到 Firebase');
+
+    } catch (error) {
+        console.error('❌ 更新順序失敗:', error);
+    }
+}
+
+// ==========================================
 // 拖曳排序功能
 // ==========================================
 
@@ -349,6 +416,15 @@ function handleDrop(e) {
 
     target.classList.remove('drag-over');
 
+    // 新增：檢查是否同一完成狀態
+    const draggedTodo = todos.find(t => t.id === draggedId);
+    const targetTodo = todos.find(t => t.id === target.dataset.id);
+
+    if (draggedTodo && targetTodo && draggedTodo.completed !== targetTodo.completed) {
+        showError('無法在不同狀態的任務之間拖曳');
+        return;
+    }
+
     const draggedIndex = todos.findIndex(t => t.id === draggedId);
     const targetIndex = todos.findIndex(t => t.id === target.dataset.id);
 
@@ -356,6 +432,9 @@ function handleDrop(e) {
 
     const [removed] = todos.splice(draggedIndex, 1);
     todos.splice(targetIndex, 0, removed);
+
+    // 新增：更新 Firebase
+    updateTodoOrder();
 
     renderTodos();
 }
@@ -418,12 +497,23 @@ function handleTouchEnd(e) {
     const targetItem = targetElement?.closest('.todo-item');
 
     if (targetItem && targetItem !== draggedElement) {
-        const draggedIndex = todos.findIndex(t => t.id === draggedId);
-        const targetIndex = todos.findIndex(t => t.id === targetItem.dataset.id);
+        // 新增：檢查是否同一完成狀態
+        const draggedTodo = todos.find(t => t.id === draggedId);
+        const targetTodo = todos.find(t => t.id === targetItem.dataset.id);
 
-        if (draggedIndex !== -1 && targetIndex !== -1) {
-            const [removed] = todos.splice(draggedIndex, 1);
-            todos.splice(targetIndex, 0, removed);
+        if (draggedTodo && targetTodo && draggedTodo.completed !== targetTodo.completed) {
+            showError('無法在不同狀態的任務之間拖曳');
+        } else {
+            const draggedIndex = todos.findIndex(t => t.id === draggedId);
+            const targetIndex = todos.findIndex(t => t.id === targetItem.dataset.id);
+
+            if (draggedIndex !== -1 && targetIndex !== -1) {
+                const [removed] = todos.splice(draggedIndex, 1);
+                todos.splice(targetIndex, 0, removed);
+
+                // 新增：更新 Firebase
+                updateTodoOrder();
+            }
         }
     }
 
@@ -466,6 +556,7 @@ function loadTheme() {
 window.toggleTodo = toggleTodo;
 window.editTodo = editTodo;
 window.deleteTodo = deleteTodo;
+window.updateTodoOrder = updateTodoOrder;
 
 // ==========================================
 // 清理函數
