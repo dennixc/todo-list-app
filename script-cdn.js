@@ -272,27 +272,35 @@ function renderTodos(filter = '') {
     filteredTodos.forEach(todo => {
         const li = document.createElement('li');
         li.className = `todo-item ${todo.completed ? 'completed' : ''}`;
-        li.draggable = true;
         li.dataset.id = todo.id;
 
         li.innerHTML = `
+            <span class="drag-handle" title="拖曳排序">☰</span>
             <input
                 type="checkbox"
                 ${todo.completed ? 'checked' : ''}
                 onchange="toggleTodo('${todo.id}')"
             >
-            <span class="todo-text">${escapeHtml(todo.text)}</span>
+            <span class="todo-text ${todo.completed ? 'completed' : ''}">${escapeHtml(todo.text)}</span>
             <div class="todo-actions">
                 <button class="edit-btn" onclick="editTodo('${todo.id}')" title="編輯">✏️</button>
                 <button class="delete-btn" onclick="deleteTodo('${todo.id}')" title="刪除">🗑️</button>
             </div>
         `;
 
-        li.addEventListener('dragstart', handleDragStart);
+        // 只在拖曳手柄上啟用拖曳
+        const dragHandle = li.querySelector('.drag-handle');
+        dragHandle.draggable = true;
+
+        // 拖曳手柄的事件
+        dragHandle.addEventListener('dragstart', handleDragStart);
+
+        // 項目的拖曳目標事件
         li.addEventListener('dragover', handleDragOver);
         li.addEventListener('drop', handleDrop);
         li.addEventListener('dragend', handleDragEnd);
 
+        // 觸控事件（手機）
         li.addEventListener('touchstart', handleTouchStart, { passive: false });
         li.addEventListener('touchmove', handleTouchMove, { passive: false });
         li.addEventListener('touchend', handleTouchEnd);
@@ -317,9 +325,10 @@ function handleSearch(e) {
 // ==========================================
 
 function handleDragStart(e) {
-    draggedElement = e.target;
-    draggedId = e.target.dataset.id;
-    e.target.style.opacity = '0.4';
+    // e.target 是拖曳手柄，需要找到父元素 todo-item
+    draggedElement = e.target.closest('.todo-item');
+    draggedId = draggedElement.dataset.id;
+    draggedElement.style.opacity = '0.4';
 }
 
 function handleDragOver(e) {
@@ -352,13 +361,23 @@ function handleDrop(e) {
 }
 
 function handleDragEnd(e) {
-    e.target.style.opacity = '1';
+    // e.target 是拖曳手柄，需要找到父元素
+    const todoItem = e.target.closest('.todo-item');
+    if (todoItem) {
+        todoItem.style.opacity = '1';
+    }
     document.querySelectorAll('.todo-item').forEach(item => {
         item.classList.remove('drag-over');
     });
 }
 
 function handleTouchStart(e) {
+    // 只有點擊拖曳手柄時才啟用拖曳
+    if (!e.target.classList.contains('drag-handle')) {
+        draggedElement = null;
+        return;
+    }
+
     const touch = e.touches[0];
     touchStartY = touch.clientY;
     draggedElement = e.target.closest('.todo-item');
@@ -373,7 +392,8 @@ function handleTouchMove(e) {
     touchCurrentY = touch.clientY;
     const deltaY = touchCurrentY - touchStartY;
 
-    if (Math.abs(deltaY) > 10) {
+    // 增加觸發閾值到 20px，避免誤觸
+    if (Math.abs(deltaY) > 20) {
         isDraggingTouch = true;
         e.preventDefault();
         draggedElement.style.transform = `translateY(${deltaY}px)`;

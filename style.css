@@ -193,6 +193,12 @@ h1 {
     word-break: break-word;
 }
 
+/* 完成任務的樣式 */
+.todo-item.completed {
+    opacity: 0.6;
+    background: var(--item-bg-hover);
+}
+
 .todo-text.completed {
     text-decoration: line-through;
     color: var(--text-secondary);
@@ -216,24 +222,56 @@ h1 {
     font-weight: 500;
 }
 
+/* 拖曳手柄樣式 */
+.drag-handle {
+    cursor: grab;
+    font-size: 20px;
+    color: var(--text-secondary);
+    padding: 5px;
+    user-select: none;
+    touch-action: none;
+    opacity: 0.5;
+    transition: opacity 0.2s;
+}
+
+.drag-handle:hover {
+    opacity: 1;
+}
+
+.drag-handle:active {
+    cursor: grabbing;
+}
+
+.todo-actions {
+    display: flex;
+    gap: 5px;
+    align-items: center;
+}
+
 .edit-btn {
-    background: #4CAF50;
-    color: white;
+    background: transparent;
+    color: var(--text-primary);
+    border: none;
+    font-size: 18px;
+    padding: 5px;
+    cursor: pointer;
 }
 
 .edit-btn:hover {
-    background: #45a049;
-    transform: scale(1.05);
+    transform: scale(1.2);
 }
 
 .delete-btn {
-    background: #f44336;
-    color: white;
+    background: transparent;
+    color: var(--text-primary);
+    border: none;
+    font-size: 18px;
+    padding: 5px;
+    cursor: pointer;
 }
 
 .delete-btn:hover {
-    background: #da190b;
-    transform: scale(1.05);
+    transform: scale(1.2);
 }
 
 /* 響應式設計 */
