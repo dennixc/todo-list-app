@@ -92,6 +92,30 @@ h1 {
     transform: rotate(20deg) scale(0.95);
 }
 
+.search-section {
+    margin: 25px 0 20px 0;
+}
+
+#searchInput {
+    width: 100%;
+    padding: 12px 15px;
+    border: 2px solid var(--input-border);
+    border-radius: 8px;
+    font-size: 16px;
+    transition: border-color 0.3s, background 0.3s;
+    background: var(--container-bg);
+    color: var(--text-primary);
+}
+
+#searchInput:focus {
+    outline: none;
+    border-color: var(--input-border-focus);
+}
+
+#searchInput::placeholder {
+    color: var(--text-secondary);
+}
+
 .input-section {
     display: flex;
     gap: 10px;

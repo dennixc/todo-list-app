@@ -7,6 +7,7 @@ const addBtn = document.getElementById('addBtn');
 const todoList = document.getElementById('todoList');
 const themeToggle = document.getElementById('themeToggle');
 const themeIcon = document.getElementById('themeIcon');
+const searchInput = document.getElementById('searchInput');
 
 // 初始化 - 頁面載入時執行
 document.addEventListener('DOMContentLoaded', () => {
@@ -22,6 +23,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
     themeToggle.addEventListener('click', toggleTheme);
+    searchInput.addEventListener('input', handleSearch);
 });
 
 // 從 localStorage 載入資料
@@ -64,6 +66,9 @@ function addTodo() {
 
     // 儲存並渲染
     saveTodos();
+
+    // 清空搜尋框以顯示所有任務（包括新增的）
+    searchInput.value = '';
     renderTodos();
 
     // 清空輸入框
@@ -151,7 +156,7 @@ function saveTodoEdit(id, input) {
 }
 
 // 渲染任務列表
-function renderTodos() {
+function renderTodos(searchQuery = '') {
     // 清空列表
     todoList.innerHTML = '';
 
@@ -161,8 +166,19 @@ function renderTodos() {
         return;
     }
 
+    // 根據搜尋條件過濾任務
+    const filteredTodos = todos.filter(todo =>
+        todo.text.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+
+    // 如果搜尋結果為空，顯示提示
+    if (filteredTodos.length === 0) {
+        todoList.innerHTML = '<div class="empty-state">🔍 找不到符合的任務<br>試試其他關鍵字吧！</div>';
+        return;
+    }
+
     // 為每個任務建立 DOM 元素
-    todos.forEach(todo => {
+    filteredTodos.forEach(todo => {
         const li = document.createElement('li');
         li.className = 'todo-item';
         li.setAttribute('data-id', todo.id);
@@ -227,4 +243,10 @@ function toggleTheme() {
         themeIcon.textContent = '🌙';
         localStorage.setItem('theme', 'light');
     }
+}
+
+// 處理搜尋
+function handleSearch() {
+    const searchQuery = searchInput.value;
+    renderTodos(searchQuery);
 }
