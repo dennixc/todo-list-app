@@ -275,3 +275,25 @@ h1 {
     color: var(--text-secondary);
     font-size: 18px;
 }
+
+/* 拖曳樣式 */
+.todo-item {
+    cursor: move;
+    cursor: grab;
+}
+
+.todo-item:active {
+    cursor: grabbing;
+}
+
+.todo-item.dragging {
+    opacity: 0.5;
+    transform: scale(0.98);
+    box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+}
+
+.todo-item.drag-over {
+    border: 2px dashed #667eea;
+    background: var(--item-bg-hover);
+    transform: scale(1.02);
+}

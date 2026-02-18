@@ -1,5 +1,7 @@
 // 全域變數
 let todos = [];
+let draggedElement = null;
+let draggedId = null;
 
 // DOM 元素
 const todoInput = document.getElementById('todoInput');
@@ -182,6 +184,15 @@ function renderTodos(searchQuery = '') {
         const li = document.createElement('li');
         li.className = 'todo-item';
         li.setAttribute('data-id', todo.id);
+        li.setAttribute('draggable', 'true');
+
+        // 拖曳事件監聽器
+        li.addEventListener('dragstart', handleDragStart);
+        li.addEventListener('dragover', handleDragOver);
+        li.addEventListener('drop', handleDrop);
+        li.addEventListener('dragend', handleDragEnd);
+        li.addEventListener('dragenter', handleDragEnter);
+        li.addEventListener('dragleave', handleDragLeave);
 
         // Checkbox
         const checkbox = document.createElement('input');
@@ -249,4 +260,73 @@ function toggleTheme() {
 function handleSearch() {
     const searchQuery = searchInput.value;
     renderTodos(searchQuery);
+}
+
+// 拖曳開始
+function handleDragStart(e) {
+    draggedElement = this;
+    draggedId = parseInt(this.getAttribute('data-id'));
+    this.classList.add('dragging');
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/html', this.innerHTML);
+}
+
+// 拖曳經過
+function handleDragOver(e) {
+    if (e.preventDefault) {
+        e.preventDefault();
+    }
+    e.dataTransfer.dropEffect = 'move';
+    return false;
+}
+
+// 拖曳進入
+function handleDragEnter(e) {
+    if (this !== draggedElement) {
+        this.classList.add('drag-over');
+    }
+}
+
+// 拖曳離開
+function handleDragLeave(e) {
+    this.classList.remove('drag-over');
+}
+
+// 放下
+function handleDrop(e) {
+    if (e.stopPropagation) {
+        e.stopPropagation();
+    }
+
+    if (draggedElement !== this) {
+        // 獲取拖曳的任務和目標任務的 ID
+        const targetId = parseInt(this.getAttribute('data-id'));
+
+        // 找到兩個任務在陣列中的索引
+        const draggedIndex = todos.findIndex(todo => todo.id === draggedId);
+        const targetIndex = todos.findIndex(todo => todo.id === targetId);
+
+        // 重新排序：移除拖曳的項目，插入到新位置
+        const [draggedItem] = todos.splice(draggedIndex, 1);
+        todos.splice(targetIndex, 0, draggedItem);
+
+        // 儲存並重新渲染
+        saveTodos();
+        renderTodos(searchInput.value);
+    }
+
+    return false;
+}
+
+// 拖曳結束
+function handleDragEnd(e) {
+    // 移除所有拖曳相關的 class
+    const items = document.querySelectorAll('.todo-item');
+    items.forEach(item => {
+        item.classList.remove('dragging');
+        item.classList.remove('drag-over');
+    });
+
+    draggedElement = null;
+    draggedId = null;
 }
