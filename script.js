@@ -5,11 +5,14 @@ let todos = [];
 const todoInput = document.getElementById('todoInput');
 const addBtn = document.getElementById('addBtn');
 const todoList = document.getElementById('todoList');
+const themeToggle = document.getElementById('themeToggle');
+const themeIcon = document.getElementById('themeIcon');
 
 // 初始化 - 頁面載入時執行
 document.addEventListener('DOMContentLoaded', () => {
     loadTodos();
     renderTodos();
+    loadTheme();
 
     // 事件監聽器
     addBtn.addEventListener('click', addTodo);
@@ -18,6 +21,7 @@ document.addEventListener('DOMContentLoaded', () => {
             addTodo();
         }
     });
+    themeToggle.addEventListener('click', toggleTheme);
 });
 
 // 從 localStorage 載入資料
@@ -198,4 +202,29 @@ function renderTodos() {
 
         todoList.appendChild(li);
     });
+}
+
+// 載入主題設定
+function loadTheme() {
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme === 'dark') {
+        document.body.classList.add('dark-mode');
+        themeIcon.textContent = '☀️';
+    } else {
+        document.body.classList.remove('dark-mode');
+        themeIcon.textContent = '🌙';
+    }
+}
+
+// 切換主題
+function toggleTheme() {
+    document.body.classList.toggle('dark-mode');
+
+    if (document.body.classList.contains('dark-mode')) {
+        themeIcon.textContent = '☀️';
+        localStorage.setItem('theme', 'dark');
+    } else {
+        themeIcon.textContent = '🌙';
+        localStorage.setItem('theme', 'light');
+    }
 }

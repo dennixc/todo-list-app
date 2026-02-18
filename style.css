@@ -4,30 +4,92 @@
     box-sizing: border-box;
 }
 
+:root {
+    /* Light mode colors */
+    --bg-gradient-start: #667eea;
+    --bg-gradient-end: #764ba2;
+    --container-bg: white;
+    --text-primary: #333;
+    --text-secondary: #999;
+    --input-border: #e0e0e0;
+    --input-border-focus: #667eea;
+    --item-bg: #f8f9fa;
+    --item-bg-hover: #e9ecef;
+    --shadow: rgba(0, 0, 0, 0.2);
+}
+
+body.dark-mode {
+    /* Dark mode colors */
+    --bg-gradient-start: #1a1a2e;
+    --bg-gradient-end: #16213e;
+    --container-bg: #0f3460;
+    --text-primary: #eee;
+    --text-secondary: #aaa;
+    --input-border: #1a1a2e;
+    --input-border-focus: #667eea;
+    --item-bg: #1a1a2e;
+    --item-bg-hover: #16213e;
+    --shadow: rgba(0, 0, 0, 0.5);
+}
+
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, var(--bg-gradient-start) 0%, var(--bg-gradient-end) 100%);
     min-height: 100vh;
     padding: 20px;
     display: flex;
     justify-content: center;
     align-items: center;
+    transition: background 0.3s ease;
 }
 
 .container {
-    background: white;
+    background: var(--container-bg);
     border-radius: 15px;
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 10px 40px var(--shadow);
     padding: 40px;
     width: 100%;
     max-width: 600px;
+    position: relative;
+    transition: background 0.3s ease;
 }
 
 h1 {
     text-align: center;
-    color: #333;
+    color: var(--text-primary);
     margin-bottom: 30px;
     font-size: 2rem;
+}
+
+.subtitle {
+    text-align: center;
+    color: var(--text-secondary);
+    font-size: 14px;
+    margin-top: -10px;
+}
+
+.theme-toggle {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    transition: transform 0.3s ease;
+    padding: 8px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.theme-toggle:hover {
+    transform: rotate(20deg) scale(1.1);
+}
+
+.theme-toggle:active {
+    transform: rotate(20deg) scale(0.95);
 }
 
 .input-section {
@@ -39,15 +101,17 @@ h1 {
 #todoInput {
     flex: 1;
     padding: 12px 15px;
-    border: 2px solid #e0e0e0;
+    border: 2px solid var(--input-border);
     border-radius: 8px;
     font-size: 16px;
-    transition: border-color 0.3s;
+    transition: border-color 0.3s, background 0.3s;
+    background: var(--container-bg);
+    color: var(--text-primary);
 }
 
 #todoInput:focus {
     outline: none;
-    border-color: #667eea;
+    border-color: var(--input-border-focus);
 }
 
 #addBtn {
@@ -80,14 +144,14 @@ h1 {
     align-items: center;
     gap: 12px;
     padding: 15px;
-    background: #f8f9fa;
+    background: var(--item-bg);
     border-radius: 8px;
     margin-bottom: 10px;
     transition: all 0.3s;
 }
 
 .todo-item:hover {
-    background: #e9ecef;
+    background: var(--item-bg-hover);
     transform: translateX(5px);
 }
 
@@ -101,20 +165,21 @@ h1 {
 .todo-text {
     flex: 1;
     font-size: 16px;
-    color: #333;
+    color: var(--text-primary);
     word-break: break-word;
 }
 
 .todo-text.completed {
     text-decoration: line-through;
-    color: #999;
+    color: var(--text-secondary);
 }
 
 .todo-text.editing {
     padding: 5px;
     border: 2px solid #667eea;
     border-radius: 4px;
-    background: white;
+    background: var(--container-bg);
+    color: var(--text-primary);
 }
 
 .btn {
@@ -183,6 +248,6 @@ h1 {
 .empty-state {
     text-align: center;
     padding: 40px;
-    color: #999;
+    color: var(--text-secondary);
     font-size: 18px;
 }
