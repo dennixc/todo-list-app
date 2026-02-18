@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>待辦事項清單</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>待辦事項清單</h1>
+
+        <div class="input-section">
+            <input
+                type="text"
+                id="todoInput"
+                placeholder="輸入新的待辦事項..."
+                autocomplete="off"
+            >
+            <button id="addBtn">新增</button>
+        </div>
+
+        <ul id="todoList" class="todo-list">
+            <!-- 任務項目將動態插入這裡 -->
+        </ul>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
