@@ -51,7 +51,14 @@ export function useFirestore() {
         else incomplete.push(t)
       }
     }
-    incomplete.sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
+    incomplete.sort((a, b) => {
+      const dueA = a.dueAt?.toDate?.() ?? (a.dueAt instanceof Date ? a.dueAt : null)
+      const dueB = b.dueAt?.toDate?.() ?? (b.dueAt instanceof Date ? b.dueAt : null)
+      if (dueA && dueB) return dueA - dueB   // 兩者都有時間：升序（近期優先）
+      if (dueA) return -1                     // 只有 a 有時間：a 排前
+      if (dueB) return 1                      // 只有 b 有時間：b 排前
+      return (a.order ?? 0) - (b.order ?? 0) // 兩者無時間：按拖曳順序
+    })
     overdue.sort((a, b) => {
       const tA = a.dueAt?.toDate?.()?.getTime() ?? 0
       const tB = b.dueAt?.toDate?.()?.getTime() ?? 0
