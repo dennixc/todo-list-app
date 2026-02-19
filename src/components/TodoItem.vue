@@ -46,8 +46,8 @@
           @keyup.enter="submitEdit"
           @keyup.escape="cancelEdit"
         />
-        <span v-if="!todo.completed && (dueDateDisplay || todo.remindAt)" class="todo-due-date">
-          <template v-if="dueDateDisplay">{{ dueDateDisplay }}</template><template v-if="todo.remindAt"> 🔔</template>
+        <span v-if="!todo.completed && dueDateDisplay" class="todo-due-date">
+          {{ dueDateDisplay }}
         </span>
       </div>
 

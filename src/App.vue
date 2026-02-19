@@ -57,12 +57,10 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useFirestore } from './composables/useFirestore.js'
-import { useNotifications } from './composables/useNotifications.js'
 import TodoList from './components/TodoList.vue'
 import AddTodoBar from './components/AddTodoBar.vue'
 
 const { todos, sortedTodos, loading, error, addTodo, toggleTodo, editTodo, deleteTodo, updateOrder } = useFirestore()
-const { requestPermission } = useNotifications(sortedTodos)
 
 const isDark = ref(false)
 const searchQuery = ref('')
@@ -74,7 +72,6 @@ function toggleTheme() {
 
 onMounted(() => {
   isDark.value = localStorage.getItem('theme') === 'dark'
-  requestPermission()
 })
 
 function handleEdit(id, newText) {
