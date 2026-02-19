@@ -12,13 +12,14 @@
 - `src/App.vue` — Root component（主題切換、搜尋狀態）
 - `src/style.css` — Tailwind CSS v4 + iOS 自訂樣式
 - `src/firebase.js` — Firebase 初始化（npm 包）
-- `src/composables/useFirestore.js` — 所有 Firebase 操作邏輯
-- `src/components/TodoList.vue` — 列表 + SortableJS 拖曳
+- `src/composables/useFirestore.js` — 所有 Firebase 操作邏輯（含 `sortedTodos` computed、`groupedTodos` 分組）
+- `src/components/TodoList.vue` — 列表 + SortableJS 拖曳 + 已完成區塊摺疊
 - `src/components/TodoItem.vue` — 單項：checkbox、inline edit、左滑刪除
 - `src/components/AddTodoBar.vue` — 底部固定新增欄
 
 ### 舊文件（已停用，可忽略）
 - `script-cdn.js` — 舊版 Vanilla JS（不再使用）
+- `script.js` — 舊版 Vanilla JS + Firebase CDN 版（不再使用）
 - `style.css`（根目錄）— 舊版 CSS（不再使用）
 
 ## 技術架構
@@ -72,9 +73,16 @@ git push origin main
 - ✅ 搜尋過濾
 - ✅ iOS Safe Area 適配（Dynamic Island / Home Bar）
 - ✅ Apple Reminders 風格 UI（大粗體紫色標題、圓形 checkbox）
+- ✅ 已過期區塊（截止時間已過的未完成任務獨立顯示，紅色 section header）
+- ✅ 已完成區塊摺疊／展開（可點擊 header，箭頭旋轉動畫，顯示計數）
+
+## 已完成區塊摺疊實作細節
+- **狀態**：`TodoList.vue` 本地 `isCollapsed = ref(false)`（純 UI，不存 Firebase）
+- **template**：`<Transition name="collapse">` + `v-show="!isCollapsed"`
+- **樣式**：`.completed-header`（紫色）、`.collapse-chevron`（rotate -90deg when collapsed）、`.completed-count`（靠右次要色）
+- **動畫**：opacity 淡入淡出 0.25s
 
 ## 未來方向
-- [ ] 視覺分隔線（未完成/已完成之間）
 - [ ] 批量標記完成
 - [ ] 任務分類/標籤
 - [ ] 優先級排序
