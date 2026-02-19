@@ -34,6 +34,37 @@ export function useFirestore() {
     })
   })
 
+  // 每分鐘更新 now，觸發 groupedTodos 重新計算
+  const nowRef = ref(Date.now())
+  const nowTimer = setInterval(() => { nowRef.value = Date.now() }, 60000)
+
+  // 分組：未完成 / 已過期 / 已完成
+  const groupedTodos = computed(() => {
+    const now = nowRef.value
+    const incomplete = [], overdue = [], completed = []
+    for (const t of todos.value) {
+      if (t.completed) {
+        completed.push(t)
+      } else {
+        const dueAt = t.dueAt?.toDate?.() ?? (t.dueAt instanceof Date ? t.dueAt : null)
+        if (dueAt && dueAt.getTime() < now) overdue.push(t)
+        else incomplete.push(t)
+      }
+    }
+    incomplete.sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
+    overdue.sort((a, b) => {
+      const tA = a.dueAt?.toDate?.()?.getTime() ?? 0
+      const tB = b.dueAt?.toDate?.()?.getTime() ?? 0
+      return tA - tB
+    })
+    completed.sort((a, b) => {
+      const tA = a.completedAt?.toDate?.() ?? new Date(0)
+      const tB = b.completedAt?.toDate?.() ?? new Date(0)
+      return tB - tA
+    })
+    return { incomplete, overdue, completed }
+  })
+
   // 即時同步
   const q = query(collection(db, 'todos'), orderBy('createdAt', 'desc'))
   const unsubscribe = onSnapshot(
@@ -52,7 +83,10 @@ export function useFirestore() {
     }
   )
 
-  onUnmounted(() => unsubscribe())
+  onUnmounted(() => {
+    unsubscribe()
+    clearInterval(nowTimer)
+  })
 
   async function addTodo(text) {
     if (!text.trim()) return
@@ -110,6 +144,7 @@ export function useFirestore() {
   return {
     todos,
     sortedTodos,
+    groupedTodos,
     loading,
     error,
     addTodo,

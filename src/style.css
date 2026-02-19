@@ -276,6 +276,28 @@ html, body {
   margin-top: 3px;
   line-height: 1.2;
 }
+.todo-due-date.overdue {
+  color: var(--delete-red);
+}
+
+/* Section header (已過期) */
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 12px 20px 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--delete-red);
+  letter-spacing: 0.3px;
+}
+.section-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--delete-red);
+  flex-shrink: 0;
+}
 
 /* Inline edit input */
 .edit-input {

@@ -46,7 +46,9 @@
           @keyup.enter="submitEdit"
           @keyup.escape="cancelEdit"
         />
-        <span v-if="!todo.completed && dueDateDisplay" class="todo-due-date">
+        <span v-if="!todo.completed && dueDateDisplay"
+              class="todo-due-date"
+              :class="{ 'overdue': isOverdue }">
           {{ dueDateDisplay }}
         </span>
       </div>
@@ -76,6 +78,12 @@ const dueDateDisplay = computed(() => {
   const date = toDate(props.todo.dueAt)
   if (!date) return null
   return formatDateTime(date)
+})
+
+const isOverdue = computed(() => {
+  if (props.todo.completed) return false
+  const d = toDate(props.todo.dueAt)
+  return d && d.getTime() < Date.now()
 })
 
 // Inline edit

@@ -39,7 +39,7 @@
     <!-- List -->
     <main class="main-content">
       <TodoList
-        :sorted-todos="sortedTodos"
+        :grouped-todos="groupedTodos"
         :loading="loading"
         :search-query="searchQuery"
         @toggle="toggleTodo"
@@ -60,7 +60,7 @@ import { useFirestore } from './composables/useFirestore.js'
 import TodoList from './components/TodoList.vue'
 import AddTodoBar from './components/AddTodoBar.vue'
 
-const { todos, sortedTodos, loading, error, addTodo, toggleTodo, editTodo, deleteTodo, updateOrder } = useFirestore()
+const { todos, sortedTodos, groupedTodos, loading, error, addTodo, toggleTodo, editTodo, deleteTodo, updateOrder } = useFirestore()
 
 const isDark = ref(false)
 const searchQuery = ref('')
