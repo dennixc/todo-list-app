@@ -13,3 +13,9 @@ Thumbs.db
 # Node.js
 node_modules/
 package-lock.json
+
+# Vite build output
+dist/
+
+# Backup files
+*.bak

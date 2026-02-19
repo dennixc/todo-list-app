@@ -1,11 +1,11 @@
 {
-  "name": "待辦事項清單",
-  "short_name": "Todo",
-  "description": "功能完整的待辦事項管理應用",
+  "name": "提醒事項",
+  "short_name": "提醒",
+  "description": "Apple 風格待辦事項應用",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#667eea",
-  "theme_color": "#667eea",
+  "background_color": "#7C3AED",
+  "theme_color": "#7C3AED",
   "orientation": "portrait-primary",
   "icons": [
     {
