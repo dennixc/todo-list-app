@@ -46,6 +46,9 @@
           @keyup.enter="submitEdit"
           @keyup.escape="cancelEdit"
         />
+        <span v-if="!todo.completed && (dueDateDisplay || todo.remindAt)" class="todo-due-date">
+          <template v-if="dueDateDisplay">{{ dueDateDisplay }}</template><template v-if="todo.remindAt"> 🔔</template>
+        </span>
       </div>
 
       <!-- Drag handle (desktop) -->
@@ -61,12 +64,19 @@
 </template>
 
 <script setup>
-import { ref, nextTick } from 'vue'
+import { ref, computed, nextTick } from 'vue'
+import { toDate, formatDateTime } from '../composables/useNotifications.js'
 
 const props = defineProps({
   todo: { type: Object, required: true }
 })
 const emit = defineEmits(['toggle', 'edit', 'delete'])
+
+const dueDateDisplay = computed(() => {
+  const date = toDate(props.todo.dueAt)
+  if (!date) return null
+  return formatDateTime(date)
+})
 
 // Inline edit
 const isEditing = ref(false)

@@ -44,3 +44,17 @@ self.addEventListener('fetch', (event) => {
 self.addEventListener('message', (event) => {
   if (event.data?.type === 'SKIP_WAITING') self.skipWaiting();
 });
+
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close();
+  const url = event.notification.data?.url || '/';
+  event.waitUntil(
+    self.clients.matchAll({ type: 'window', includeUncontrolled: true })
+      .then(clients => {
+        for (const c of clients) {
+          if (c.url.includes(self.location.origin)) return c.focus();
+        }
+        return self.clients.openWindow(url);
+      })
+  );
+});
