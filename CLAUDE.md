@@ -43,9 +43,12 @@
 ```
 
 ## 排序邏輯
-- 未完成任務（completed: false）→ 顯示在上層，按 order 排序
+- 未完成任務（completed: false，dueAt 未到）→ 顯示在上層
+  - 有 dueAt 的項目排前，按時間升序（最近期最前）
+  - 無 dueAt 的項目排後，按 order 排序（手動拖曳順序）
+- 已過期任務（completed: false，dueAt 已過）→ 「已過期」區塊，按 dueAt 升序
 - 已完成任務（completed: true）→ 顯示在下層，按 completedAt 倒序
-- 排序在 `useFirestore.js` 的 `sortedTodos` computed 屬性內
+- 排序在 `useFirestore.js` 的 `groupedTodos` computed 屬性內
 
 ## 開發指令
 ```bash
@@ -75,6 +78,7 @@ git push origin main
 - ✅ Apple Reminders 風格 UI（大粗體紫色標題、圓形 checkbox）
 - ✅ 已過期區塊（截止時間已過的未完成任務獨立顯示，紅色 section header）
 - ✅ 已完成區塊摺疊／展開（可點擊 header，箭頭旋轉動畫，顯示計數）
+- ✅ 未完成排序優化（有時間的項目優先，按時間升序；無時間按拖曳順序）
 
 ## 已完成區塊摺疊實作細節
 - **狀態**：`TodoList.vue` 本地 `isCollapsed = ref(false)`（純 UI，不存 Firebase）
