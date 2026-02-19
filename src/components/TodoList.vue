@@ -30,16 +30,28 @@
     </template>
 
     <!-- 已完成 -->
-    <ul v-if="filteredCompleted.length > 0" class="todo-list">
-      <TodoItem
-        v-for="todo in filteredCompleted"
-        :key="todo.id"
-        :todo="todo"
-        @toggle="$emit('toggle', $event)"
-        @edit="(id, text) => $emit('edit', id, text)"
-        @delete="$emit('delete', $event)"
-      />
-    </ul>
+    <template v-if="filteredCompleted.length > 0">
+      <div class="section-header completed-header" @click="isCollapsed = !isCollapsed">
+        <svg class="collapse-chevron" :class="{ collapsed: isCollapsed }"
+             viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <polyline points="6 9 12 15 18 9"/>
+        </svg>
+        <span>已完成</span>
+        <span class="completed-count">{{ filteredCompleted.length }} 個</span>
+      </div>
+      <Transition name="collapse">
+        <ul v-show="!isCollapsed" class="todo-list">
+          <TodoItem
+            v-for="todo in filteredCompleted"
+            :key="todo.id"
+            :todo="todo"
+            @toggle="$emit('toggle', $event)"
+            @edit="(id, text) => $emit('edit', id, text)"
+            @delete="$emit('delete', $event)"
+          />
+        </ul>
+      </Transition>
+    </template>
 
     <p v-if="totalVisible === 0 && !loading" class="empty-hint">
       {{ searchQuery ? '找不到符合的任務' : '暫無待辦事項' }}
@@ -51,6 +63,8 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import Sortable from 'sortablejs'
 import TodoItem from './TodoItem.vue'
+
+const isCollapsed = ref(false)
 
 const props = defineProps({
   groupedTodos: { type: Object, required: true },
